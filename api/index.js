@@ -8,6 +8,7 @@ let materialsRoutes = require('./materials');
 let connectionsRoutes = require('./connections');
 let transactionsRoutes = require('./transactions');
 let globalMaterialsRoute = require('./globalMaterials');
+let exportsRoutes = require('./exports');
 
 router.get('/', async (request, response) => {
   response.render('pages/under-development');
@@ -38,6 +39,11 @@ router.use(
   '/globalMaterials',
   passport.authenticate('jwt', { session: false }),
   globalMaterialsRoute
+);
+router.use(
+  '/exports',
+  passport.authenticate('jwt', { session: false }),
+  exportsRoutes
 );
 
 module.exports = router;
