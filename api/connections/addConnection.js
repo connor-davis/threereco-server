@@ -26,7 +26,7 @@ let generateConnection = async (
 
         data.connection = data.id;
         data.id = uuid.v4();
-        data.userPassword = undefined;
+        delete data["userPassword"];
 
         if (data) {
           database
@@ -47,7 +47,7 @@ let generateConnection = async (
 
                   data.connection = data.id;
                   data.id = uuid.v4();
-                  data.userPassword = undefined;
+                  delete data["userPassword"];
 
                   r.db('threereco')
                     .table('userConnections')

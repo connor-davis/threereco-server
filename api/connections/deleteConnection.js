@@ -91,8 +91,6 @@ router.post('/', async (request, response) => {
     m1.milliseconds() +
     1000 * (m1.seconds() + 60 * (m1.minutes() + 60 * m1.hours()));
 
-  let connection = await r.connect();
-
   removeConnection(
     body.id,
     request,
@@ -109,7 +107,7 @@ router.post('/', async (request, response) => {
           error,
         });
 
-        logger.error(error);
+        logger.error(message);
 
         return logger.info(
           `Operation took ${operationEnded - operationStarted}ms.`
