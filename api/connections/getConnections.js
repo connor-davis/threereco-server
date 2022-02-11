@@ -35,6 +35,10 @@ router.get('/', async (request, response) => {
     .run(connection, async (error, result) => {
       let data = await result.toArray();
 
+      data.map((d) => {
+        return { ...d, userPassword: undefined };
+      });
+
       let m2 = moment();
       let operationEnded =
         m2.milliseconds() +
@@ -63,12 +67,10 @@ router.get('/', async (request, response) => {
             `Operation took ${operationEnded - operationStarted}ms.`
           );
         } else {
-          response
-            .status(200)
-            .json({
-              message: 'Error while finding user connections.',
-              data: [],
-            });
+          response.status(200).json({
+            message: 'Error while finding user connections.',
+            data: [],
+          });
 
           logger.error('Could not find user connections.');
 
@@ -122,12 +124,10 @@ router.get('/:id', async (request, response) => {
             `Operation took ${operationEnded - operationStarted}ms.`
           );
         } else {
-          response
-            .status(200)
-            .json({
-              message: 'Error while finding user connections.',
-              data: [],
-            });
+          response.status(200).json({
+            message: 'Error while finding user connections.',
+            data: [],
+          });
 
           logger.error('Could not find user connections.');
 

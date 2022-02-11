@@ -3,7 +3,7 @@ let router = Router();
 let r = require('rethinkdb');
 let logger = require('../../utils/logger.js');
 let moment = require('moment');
-let uuid = require("uuid");
+let uuid = require('uuid');
 
 let generateConnection = async (
   userId,
@@ -26,6 +26,7 @@ let generateConnection = async (
 
         data.connection = data.id;
         data.id = uuid.v4();
+        data.userPassword = undefined;
 
         if (data) {
           database
@@ -46,6 +47,7 @@ let generateConnection = async (
 
                   data.connection = data.id;
                   data.id = uuid.v4();
+                  data.userPassword = undefined;
 
                   r.db('threereco')
                     .table('userConnections')
