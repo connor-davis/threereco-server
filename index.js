@@ -79,9 +79,9 @@ io.on('connection', (socket) => {
     api
   );
 
-  app.get('/', async (request, response) => {
-    response.render('pages/welcome');
-  });
+  // app.get('/', async (request, response) => {
+  //   response.render('pages/welcome');
+  // });
 
   app.get('/**', async (request, response) => {
     response.render('pages/404.ejs');
