@@ -9,17 +9,18 @@ let app = express();
 let fs = require('fs');
 let path = require('path');
 let http = require('http').createServer(app);
-let devmode = process.env.DEV_MODE;
+let devmode = process.env.DEV_MODE === 'true';
 let https;
+let r = require('rethinkdb');
 
 if (!devmode) {
-  https = require("https").createServer(
-  {
-    cert: fs.readFileSync("./ssl/server.cert"),
-    key: fs.readFileSync("./ssl/server.key"),
-  },
-  app
-);
+  https = require('https').createServer(
+    {
+      cert: fs.readFileSync('./ssl/server.cert'),
+      key: fs.readFileSync('./ssl/server.key'),
+    },
+    app
+  );
 }
 
 let compression = require('compression');
@@ -29,8 +30,6 @@ let passport = require('passport');
 
 let JwtStrategy = require('./strategies/jwt');
 let session = require('express-session');
-
-let r = require('rethinkdb');
 
 let api = require('./api');
 // let routes = require('./routes');
@@ -45,7 +44,7 @@ io.on('connection', (socket) => {
 });
 
 (async () => {
-  app.use(cors("*"));
+  app.use(cors('*'));
   app.use(compression());
   app.use(json());
   app.use(urlencoded({ extended: false }));
@@ -60,7 +59,10 @@ io.on('connection', (socket) => {
   });
 
   passport.deserializeUser(async (id, done) => {
-    let connection = devmode ? await r.connect() : await r.connect(process.env.RETHINK);
+    let connection = await r.connect({
+      host: devmode ? 'localhost' : process.env.RETHINK,
+      port: 28015,
+    });
 
     r.db('threereco')
       .table('users')
@@ -92,36 +94,41 @@ io.on('connection', (socket) => {
   app.get('/**', async (request, response) => {
     response.render('pages/404.ejs');
   });
-  
-  let connection = devmode ? await r.connect() : await r.connect(process.env.RETHINK)
 
-  r.dbCreate('threereco').run(connection, (error, _) => {
-    if (error)
-      return logger.warning(
-        'Database could not be created. Already exists.'
-      );
-    else return logger.success('Database threereco created.');
-  });
-
-  r.db('threereco')
-    .tableCreate('users')
-    .run(connection, (error, _) => {
-      if (error)
-        return logger.warning(
-          'Users table could not be created. Already exists.'
-        );
-      else return logger.success('Users table created.');
+  (async () => {
+    let connection = await r.connect({
+      host: devmode ? 'localhost' : process.env.RETHINK,
+      port: 28015,
     });
 
-  return logger.success(
-    `Connected to RethinkDB on http://${connection.host}:${connection.port}`
-  );
+    r.dbCreate('threereco').run(connection, (error, _) => {
+      if (error)
+        return logger.warning('Database could not be created. Already exists.');
+      else return logger.success('Database threereco created.');
+    });
+
+    r.db('threereco')
+      .tableCreate('users')
+      .run(connection, (error, _) => {
+        if (error)
+          return logger.warning(
+            'Users table could not be created. Already exists.'
+          );
+        else return logger.success('Users table created.');
+      });
+
+    return logger.success(
+      `Connected to RethinkDB on http://${connection.host}:${connection.port}`
+    );
+  })();
 
   http.listen(port, () =>
     logger.success(`HTTP listening on http://localhost:${port}`)
   );
-  
+
   if (!devmode) {
-    https.listen(secure_port, () => logger.success(`HTTPS listening on https://localhost:${secure_port}`)); 
+    https.listen(secure_port, () =>
+      logger.success(`HTTPS listening on https://localhost:${secure_port}`)
+    );
   }
 })();

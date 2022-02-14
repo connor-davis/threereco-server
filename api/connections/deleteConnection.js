@@ -5,8 +5,11 @@ let logger = require('../../utils/logger.js');
 let moment = require('moment');
 
 let removeConnection = async (userId, request, response, callback) => {
-  let devmode = process.env.DEV_MODE;
-let connection = devmode ? await r.connect() : await r.connect(process.env.RETHINK);
+  let devmode = process.env.DEV_MODE === "true";
+  let connection = await r.connect({
+    host: devmode ? 'localhost' : process.env.RETHINK,
+    port: 28015,
+  });
   let database = r.db('threereco');
 
   database

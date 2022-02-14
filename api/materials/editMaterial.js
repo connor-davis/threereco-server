@@ -12,8 +12,11 @@ router.put('/', async (request, response) => {
     m1.milliseconds() +
     1000 * (m1.seconds() + 60 * (m1.minutes() + 60 * m1.hours()));
 
-  let devmode = process.env.DEV_MODE;
-let connection = devmode ? await r.connect() : await r.connect(process.env.RETHINK);
+  let devmode = process.env.DEV_MODE === "true";
+  let connection = await r.connect({
+    host: devmode ? 'localhost' : process.env.RETHINK,
+    port: 28015,
+  });
 
   let materialObject = {
     user: request.user.id,
