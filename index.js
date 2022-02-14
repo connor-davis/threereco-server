@@ -60,7 +60,7 @@ io.on('connection', (socket) => {
   });
 
   passport.deserializeUser(async (id, done) => {
-    let connection = await r.connect();
+    let connection = devmode ? await r.connect() : await r.connect(process.env.RETHINK);
 
     r.db('threereco')
       .table('users')
@@ -92,38 +92,36 @@ io.on('connection', (socket) => {
   app.get('/**', async (request, response) => {
     response.render('pages/404.ejs');
   });
+  
+  let connection = devmode ? await r.connect() : await r.connect(process.env.RETHINK)
 
-  r.connect(async (error, connection) => {
-    if (error) return console.log(error);
-    else {
-      r.dbCreate('threereco').run(connection, (error, _) => {
-        if (error)
-          return logger.warning(
-            'Database could not be created. Already exists.'
-          );
-        else return logger.success('Database threereco created.');
-      });
-
-      r.db('threereco')
-        .tableCreate('users')
-        .run(connection, (error, _) => {
-          if (error)
-            return logger.warning(
-              'Users table could not be created. Already exists.'
-            );
-          else return logger.success('Users table created.');
-        });
-
-      return logger.success(
-        `Connected to RethinkDB on http://${connection.host}:${connection.port}`
+  r.dbCreate('threereco').run(connection, (error, _) => {
+    if (error)
+      return logger.warning(
+        'Database could not be created. Already exists.'
       );
-    }
+    else return logger.success('Database threereco created.');
   });
+
+  r.db('threereco')
+    .tableCreate('users')
+    .run(connection, (error, _) => {
+      if (error)
+        return logger.warning(
+          'Users table could not be created. Already exists.'
+        );
+      else return logger.success('Users table created.');
+    });
+
+  return logger.success(
+    `Connected to RethinkDB on http://${connection.host}:${connection.port}`
+  );
 
   http.listen(port, () =>
     logger.success(`HTTP listening on http://localhost:${port}`)
   );
+  
   if (!devmode) {
-   https.listen(secure_port, () => console.log(`HTTPS listening on https://localhost:${secure_port}`)); 
+    logger.success(secure_port, () => console.log(`HTTPS listening on https://localhost:${secure_port}`)); 
   }
 })();
