@@ -9,13 +9,18 @@ let app = express();
 let fs = require('fs');
 let path = require('path');
 let http = require('http').createServer(app);
-// let https = require("https").createServer(
-//   {
-//     cert: fs.readFileSync("./ssl/server.cert"),
-//     key: fs.readFileSync("./certs/server.key"),
-//   },
-//   app
-// );
+let devmode = process.env.DEV_MODE;
+let https;
+
+if (!devmode) {
+  https = require("https").createServer(
+  {
+    cert: fs.readFileSync("./ssl/server.cert"),
+    key: fs.readFileSync("./ssl/server.key"),
+  },
+  app
+);
+}
 
 let compression = require('compression');
 let cors = require('cors');
@@ -30,7 +35,8 @@ let r = require('rethinkdb');
 let api = require('./api');
 // let routes = require('./routes');
 
-let port = process.env.PORT || 3000;
+let port = process.env.HTTP_PORT || 3000;
+let secure_port = process.env.HTTP_SECURE_PORT || 443;
 
 let io = require('socket.io')(http);
 
@@ -115,7 +121,9 @@ io.on('connection', (socket) => {
   });
 
   http.listen(port, () =>
-    logger.success(`Listening on http://localhost:${port}`)
+    logger.success(`HTTP listening on http://localhost:${port}`)
   );
-  //   https.listen(443, () => console.log(`Listening on http://localhost:443`));
+  if (!devmode) {
+   https.listen(secure_port, () => console.log(`HTTPS listening on https://localhost:${secure_port}`)); 
+  }
 })();
