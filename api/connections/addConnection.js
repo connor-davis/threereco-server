@@ -12,7 +12,8 @@ let generateConnection = async (
   response,
   callback
 ) => {
-  let connection = await r.connect();
+  let devmode = process.env.DEV_MODE;
+let connection = devmode ? await r.connect() : await r.connect(process.env.RETHINK);
   let database = r.db('threereco');
 
   database

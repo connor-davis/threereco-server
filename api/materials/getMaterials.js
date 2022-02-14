@@ -10,7 +10,8 @@ router.get('/', async (request, response) => {
     m1.milliseconds() +
     1000 * (m1.seconds() + 60 * (m1.minutes() + 60 * m1.hours()));
 
-  let connection = await r.connect();
+  let devmode = process.env.DEV_MODE;
+let connection = devmode ? await r.connect() : await r.connect(process.env.RETHINK);
 
   r.db('threereco')
     .table('userMaterials')
@@ -82,7 +83,8 @@ router.get('/:id', async (request, response) => {
     m1.milliseconds() +
     1000 * (m1.seconds() + 60 * (m1.minutes() + 60 * m1.hours()));
 
-  let connection = await r.connect();
+  let devmode = process.env.DEV_MODE;
+let connection = devmode ? await r.connect() : await r.connect(process.env.RETHINK);
 
   r.db('threereco')
     .table('userMaterials')

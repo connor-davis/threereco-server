@@ -54,7 +54,8 @@ io.on('connection', (socket) => {
   });
 
   passport.deserializeUser(async (id, done) => {
-    let connection = await r.connect();
+    let devmode = process.env.DEV_MODE;
+let connection = devmode ? await r.connect() : await r.connect(process.env.RETHINK);
 
     r.db('threereco')
       .table('users')

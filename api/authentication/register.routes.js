@@ -10,7 +10,8 @@ let fs = require('fs');
 router.post('/', async (request, response) => {
   let { body } = request;
 
-  let connection = await r.connect();
+  let devmode = process.env.DEV_MODE;
+let connection = devmode ? await r.connect() : await r.connect(process.env.RETHINK);
 
   let privateKey = fs.readFileSync('certs/privateKey.pem', {
     encoding: 'utf-8',
