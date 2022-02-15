@@ -13,6 +13,8 @@ let devmode = process.env.DEV_MODE === 'true';
 let https;
 let r = require('rethinkdb');
 
+logger.info(`OP MODE: ${devmode ? 'DEV' : 'PROD'}`);
+
 if (!devmode) {
   https = require('https').createServer(
     {
