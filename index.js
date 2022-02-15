@@ -18,8 +18,8 @@ logger.info(`OP MODE: ${devmode ? 'DEV' : 'PROD'}`);
 if (!devmode) {
   https = require('https').createServer(
     {
-      cert: fs.readFileSync('./ssl/cert.pem'),
-      key: fs.readFileSync('./ssl/key.pem'),
+      cert: fs.readFileSync(process.env.CERTPATH + '/fullchain.pem'),
+      key: fs.readFileSync(process.env.CERTPATH + '/privkey.pem'),
     },
     app
   );
