@@ -10,7 +10,7 @@ router.get('/', async (request, response) => {
     m1.milliseconds() +
     1000 * (m1.seconds() + 60 * (m1.minutes() + 60 * m1.hours()));
 
-  let devmode = process.env.DEV_MODE === "true";
+  let devmode = process.env.DEV_MODE === 'true';
   let connection = await r.connect({
     host: devmode ? 'localhost' : process.env.RETHINK,
     port: 28015,
@@ -18,13 +18,13 @@ router.get('/', async (request, response) => {
 
   r.db('threereco')
     .table('userTransactions')
+    .filter(async (connection) => {
+      return connection('purchaser')('id')
+        .eq(request.user.id)
+        .or(connection('seller')('id').eq('request.user.id'));
+    })
     .run(connection, async (error, result) => {
       let data = await result.toArray();
-
-      data = data.filter(
-        (d) =>
-          d.purchaser.id === request.user.id || d.seller.id == request.user.id
-      );
 
       let m2 = moment();
       let operationEnded =
@@ -75,7 +75,7 @@ router.get('/:id', async (request, response) => {
     m1.milliseconds() +
     1000 * (m1.seconds() + 60 * (m1.minutes() + 60 * m1.hours()));
 
-  let devmode = process.env.DEV_MODE === "true";
+  let devmode = process.env.DEV_MODE === 'true';
   let connection = await r.connect({
     host: devmode ? 'localhost' : process.env.RETHINK,
     port: 28015,
