@@ -99,8 +99,6 @@ io.on('connection', (socket) => {
     response.render('pages/404.ejs');
   });
 
-  console.log(process.env.ROOT_PASSWORD);
-
   (async () => {
     let connection = await r.connect({
       host: devmode ? 'localhost' : process.env.RETHINK,
