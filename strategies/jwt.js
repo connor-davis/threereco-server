@@ -17,9 +17,11 @@ let options = {
 module.exports = new Strategy(options, async (payload, done) => {
   let devmode = process.env.DEV_MODE === "true";
   let connection = await r.connect({
-    host: devmode ? 'localhost' : process.env.RETHINK,
-    port: 28015,
-  });
+      host: devmode ? 'localhost' : process.env.RETHINK,
+      port: 28015,
+      user: "admin",
+      password: process.env.ROOT_PASSWORD
+    });
 
   r.db('threereco')
     .table('users')

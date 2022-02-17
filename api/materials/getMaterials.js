@@ -12,9 +12,11 @@ router.get('/', async (request, response) => {
 
   let devmode = process.env.DEV_MODE === "true";
   let connection = await r.connect({
-    host: devmode ? 'localhost' : process.env.RETHINK,
-    port: 28015,
-  });
+      host: devmode ? 'localhost' : process.env.RETHINK,
+      port: 28015,
+      user: "admin",
+      password: process.env.ROOT_PASSWORD
+    });
 
   r.db('threereco')
     .table('userMaterials')
@@ -88,9 +90,11 @@ router.get('/:id', async (request, response) => {
 
   let devmode = process.env.DEV_MODE === "true";
   let connection = await r.connect({
-    host: devmode ? 'localhost' : process.env.RETHINK,
-    port: 28015,
-  });
+      host: devmode ? 'localhost' : process.env.RETHINK,
+      port: 28015,
+      user: "admin",
+      password: process.env.ROOT_PASSWORD
+    });
 
   r.db('threereco')
     .table('userMaterials')

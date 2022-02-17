@@ -12,10 +12,12 @@ router.get('/', async (request, response) => {
     m1.milliseconds() +
     1000 * (m1.seconds() + 60 * (m1.minutes() + 60 * m1.hours()));
 
-  let devmode = process.env.DEV_MODE === "true";
+  let devmode = process.env.DEV_MODE === 'true';
   let connection = await r.connect({
     host: devmode ? 'localhost' : process.env.RETHINK,
     port: 28015,
+    user: 'admin',
+    password: process.env.ROOT_PASSWORD,
   });
 
   r.db('threereco')
@@ -128,9 +130,9 @@ let generateExcel = async (id, data) => {
     });
   });
 
-  sheet.columns.forEach(column => {
-    const lengths = column.values.map(v => v.toString().length);
-    const maxLength = Math.max(...lengths.filter(v => typeof v === 'number'));
+  sheet.columns.forEach((column) => {
+    const lengths = column.values.map((v) => v.toString().length);
+    const maxLength = Math.max(...lengths.filter((v) => typeof v === 'number'));
     column.width = maxLength;
   });
 

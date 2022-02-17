@@ -64,6 +64,8 @@ io.on('connection', (socket) => {
     let connection = await r.connect({
       host: devmode ? 'localhost' : process.env.RETHINK,
       port: 28015,
+      user: "admin",
+      password: process.env.ROOT_PASSWORD
     });
 
     r.db('threereco')
@@ -101,6 +103,8 @@ io.on('connection', (socket) => {
     let connection = await r.connect({
       host: devmode ? 'localhost' : process.env.RETHINK,
       port: 28015,
+      user: "admin",
+      password: process.env.ROOT_PASSWORD
     });
 
     r.dbCreate('threereco').run(connection, (error, _) => {
