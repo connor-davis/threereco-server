@@ -81,6 +81,10 @@ io.on('connection', (socket) => {
 
   passport.use('jwt', JwtStrategy);
 
+  app.use(/\/((?!rethinkdb).)*/, (req, res, next) => {
+    next();
+ });
+
   app.use(
     '/api',
     (request, response, next) => {
