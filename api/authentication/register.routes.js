@@ -10,13 +10,13 @@ let fs = require('fs');
 router.post('/', async (request, response) => {
   let { body } = request;
 
-  let devmode = process.env.DEV_MODE === "true";
+  let devmode = process.env.DEV_MODE === 'true';
   let connection = await r.connect({
-      host: devmode ? 'localhost' : process.env.RETHINK,
-      port: 28015,
-      user: "admin",
-      password: process.env.ROOT_PASSWORD
-    });
+    host: devmode ? 'localhost' : process.env.RETHINK,
+    port: 28015,
+    user: 'admin',
+    password: process.env.ROOT_PASSWORD,
+  });
 
   let privateKey = fs.readFileSync('certs/privateKey.pem', {
     encoding: 'utf-8',
@@ -24,7 +24,7 @@ router.post('/', async (request, response) => {
 
   r.db('threereco')
     .table('users')
-    .filter({ userIdNumber: body.idNumber })
+    .filter({ username: body.username })
     .run(connection, async (error, result) => {
       if (error) {
         response
@@ -42,6 +42,7 @@ router.post('/', async (request, response) => {
 
           let userObject = {
             id: uuid.v4(),
+            username: body.username,
             userIdNumber: body.idNumber,
             userPassword: bcrypt.hashSync(body.password, 2048),
           };

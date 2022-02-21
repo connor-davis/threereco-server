@@ -22,7 +22,7 @@ router.post('/', async (request, response) => {
 
   r.db('threereco')
     .table('users')
-    .filter({ userIdNumber: body.idNumber })
+    .filter({ username: body.username })
     .run(connection, async (error, result) => {
       if (error) {
         response
@@ -38,6 +38,7 @@ router.post('/', async (request, response) => {
             let token = jwt.sign(
               {
                 sub: user.id,
+                username: body.username
               },
               privateKey,
               { expiresIn: '1d', algorithm: 'RS256' }
