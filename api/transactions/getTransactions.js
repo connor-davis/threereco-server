@@ -20,11 +20,6 @@ router.get('/', async (request, response) => {
 
   r.db('threereco')
     .table('userTransactions')
-    .filter(async (connection) => {
-      return connection('purchaser')('userIdNumber')
-        .eq(request.user.userIdNumber)
-        .or(connection('seller')('userIdNumber').eq(request.user.userIdNumber));
-    })
     .run(connection, async (error, result) => {
       let data = await result.toArray();
 
