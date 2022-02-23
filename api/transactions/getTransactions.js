@@ -18,6 +18,8 @@ router.get('/', async (request, response) => {
     password: process.env.ROOT_PASSWORD,
   });
 
+  console.log(request.user);
+
   r.db('threereco')
     .table('userTransactions')
     .filter(async (connection) => {
@@ -27,8 +29,6 @@ router.get('/', async (request, response) => {
     })
     .run(connection, async (error, result) => {
       let data = await result.toArray();
-
-      console.log(data);
 
       let m2 = moment();
       let operationEnded =
