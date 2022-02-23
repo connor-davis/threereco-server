@@ -23,7 +23,7 @@ router.get('/', async (request, response) => {
     .filter(async (connection) => {
       return connection('purchaser')('id')
         .eq(request.user.id)
-        .or(connection('seller')('id').eq('request.user.id'));
+        .or(connection('seller')('id').eq(request.user.id));
     })
     .run(connection, async (error, result) => {
       let data = await result.toArray();
