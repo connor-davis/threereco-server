@@ -28,6 +28,8 @@ router.get('/', async (request, response) => {
     .run(connection, async (error, result) => {
       let data = await result.toArray();
 
+      console.log(data);
+
       let m2 = moment();
       let operationEnded =
         m2.milliseconds() +
