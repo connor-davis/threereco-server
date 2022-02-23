@@ -21,7 +21,7 @@ router.get('/', async (request, response) => {
   r.db('threereco')
     .table('userTransactions')
     .filter(async (connection) => {
-      return connection('purchaser')('id')
+      return connection('purchaser')('connection')
         .eq(request.user.id)
         .or(connection('seller')('id').eq(request.user.id));
     })
