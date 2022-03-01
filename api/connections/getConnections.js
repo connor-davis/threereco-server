@@ -10,39 +10,28 @@ router.get('/', async (request, response) => {
     m1.milliseconds() +
     1000 * (m1.seconds() + 60 * (m1.minutes() + 60 * m1.hours()));
 
-  let devmode = process.env.DEV_MODE === "true";
+  let devmode = process.env.DEV_MODE === 'true';
   let connection = await r.connect({
-      host: devmode ? 'localhost' : process.env.RETHINK,
-      port: 28015,
-      user: "admin",
-      password: process.env.ROOT_PASSWORD
-    });
+    host: devmode ? 'localhost' : process.env.RETHINK,
+    port: 28015,
+    user: 'admin',
+    password: process.env.ROOT_PASSWORD,
+  });
 
   r.db('threereco')
     .table('userConnections')
-    .filter({ user: request.user.id })
-    .changes()
-    .run(connection, (error, cursor) => {
-      if (error) logger.error(error);
-      else {
-        cursor.each((error, row) => {
-          if (error) logger.error(error);
-          else {
-            logger.info(row);
-            request.io.emit('change_userConnections', row);
-          }
-        });
-      }
-    });
-
-  r.db('threereco')
-    .table('userConnections')
-    .filter({ user: request.user.id })
     .run(connection, async (error, result) => {
       let data = await result.toArray();
 
+      data = data.filter(
+        (d) =>
+          d.initiator.userIdNumber === request.user.userIdNumber ||
+          d.connection.userIdNumber === request.user.userIdNumber
+      );
+
       data.map((d) => {
-        return { ...d, userPassword: undefined };
+        delete d['userPassword'];
+        return d;
       });
 
       let m2 = moment();
@@ -94,13 +83,13 @@ router.get('/:id', async (request, response) => {
     m1.milliseconds() +
     1000 * (m1.seconds() + 60 * (m1.minutes() + 60 * m1.hours()));
 
-  let devmode = process.env.DEV_MODE === "true";
+  let devmode = process.env.DEV_MODE === 'true';
   let connection = await r.connect({
-      host: devmode ? 'localhost' : process.env.RETHINK,
-      port: 28015,
-      user: "admin",
-      password: process.env.ROOT_PASSWORD
-    });
+    host: devmode ? 'localhost' : process.env.RETHINK,
+    port: 28015,
+    user: 'admin',
+    password: process.env.ROOT_PASSWORD,
+  });
 
   r.db('threereco')
     .table('userConnections')

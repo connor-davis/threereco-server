@@ -1,103 +1,7 @@
-let { Router, request } = require('express');
+let { Router } = require('express');
 let router = Router();
 let r = require('rethinkdb');
-let logger = require('../../utils/logger.js');
 let moment = require('moment');
-let uuid = require('uuid');
-
-let generateConnection = async (
-  userId,
-  connectionUserId,
-  request,
-  response,
-  callback
-) => {
-  let devmode = process.env.DEV_MODE === "true";
-  let connection = await r.connect({
-      host: devmode ? 'localhost' : process.env.RETHINK,
-      port: 28015,
-      user: "admin",
-      password: process.env.ROOT_PASSWORD
-    });
-  let database = r.db('threereco');
-
-  database
-    .table('users')
-    .get(connectionUserId)
-    .run(connection, async (error, result) => {
-      if (error) {
-        callback({ error, message: 'Unable to find user.' }, false);
-      } else {
-        let data = await result;
-
-        data.connection = data.id;
-        data.id = uuid.v4();
-        delete data["userPassword"];
-
-        if (data) {
-          database
-            .table('userConnections')
-            .insert({ user: userId, ...data })
-            .run(connection, async (error, result) => {
-              if (error) {
-                callback(
-                  {
-                    message: 'Error while creating new user connection.',
-                    error,
-                  },
-                  false
-                );
-              } else {
-                if (result.inserted >= 1) {
-                  let data = request.user;
-
-                  data.connection = data.id;
-                  data.id = uuid.v4();
-                  delete data["userPassword"];
-
-                  r.db('threereco')
-                    .table('userConnections')
-                    .insert({ user: connectionUserId, ...data })
-                    .run(connection, async (error, result) => {
-                      if (error) {
-                        callback(
-                          {
-                            error,
-                            message:
-                              'Error while creating new user connection.',
-                          },
-                          false
-                        );
-                      } else {
-                        if (result.inserted >= 1) {
-                          callback(false, {
-                            message: 'Created a new user connection.',
-                            data: { user: userId, ...data },
-                          });
-                        } else {
-                          callback(
-                            {
-                              message: 'Could not create new user connection.',
-                            },
-                            false
-                          );
-                        }
-                      }
-                    });
-                } else {
-                  callback(
-                    { message: 'Could not create new user connection.' },
-                    false
-                  );
-                }
-              }
-            });
-        } else {
-          callback({ message: 'Unable to find user.' }, false);
-        }
-      }
-    });
-};
 
 router.post('/', async (request, response) => {
   let { body } = request;
@@ -107,51 +11,62 @@ router.post('/', async (request, response) => {
     m1.milliseconds() +
     1000 * (m1.seconds() + 60 * (m1.minutes() + 60 * m1.hours()));
 
-  await generateConnection(
-    request.user.id,
-    body.id,
-    request,
-    response,
-    async ({ error, message }, result) => {
-      let m2 = moment();
-      let operationEnded =
-        m2.milliseconds() +
-        1000 * (m2.seconds() + 60 * (m2.minutes() + 60 * m2.hours()));
+  let devmode = process.env.DEV_MODE === 'true';
+  let connection = await r.connect({
+    host: devmode ? 'localhost' : process.env.RETHINK,
+    port: 28015,
+    user: 'admin',
+    password: process.env.ROOT_PASSWORD,
+  });
+  let database = r.db('threereco');
 
+  database
+    .table('users')
+    .get(body.id)
+    .run(connection, async (error, result) => {
       if (error) {
-        response.status(500).json({
-          message,
-          error,
-        });
-
-        logger.error(error);
-
-        return logger.info(
-          `Operation took ${operationEnded - operationStarted}ms.`
-        );
+        callback({ error, message: 'Unable to find user.' }, false);
       } else {
-        if (result) {
-          response.status(200).json(result);
+        let data = await result;
+        delete data['userPassword'];
 
-          logger.success('Created a new user connection.');
+        let user = request.user;
+        delete user['userPassword'];
 
-          return logger.info(
-            `Operation took ${operationEnded - operationStarted}ms.`
-          );
+        let connectionObject = {
+          initiator: user,
+          connection: data,
+          date: Date.now(),
+        };
+
+        if (data) {
+          database
+            .table('userConnections')
+            .insert(connectionObject)
+            .run(connection, async (error, result) => {
+              if (error) {
+                response.status(500).json({
+                  message: 'Error while creating new user connection.',
+                  error,
+                });
+              } else {
+                if (result.inserted >= 1) {
+                  response.status(200).json({
+                    message: 'Created a new user connection.',
+                    data: connectionObject,
+                  });
+                } else {
+                  response.status(500).json({
+                    message: 'Could not create new user connection.',
+                  });
+                }
+              }
+            });
         } else {
-          response.status(500).json({
-            message: 'Error while creating new user connection.',
-          });
-
-          logger.error('Could not create new user connection.');
-
-          return logger.info(
-            `Operation took ${operationEnded - operationStarted}ms.`
-          );
+          response.status(500).json({ message: 'Unable to find user.' });
         }
       }
-    }
-  );
+    });
 });
 
 module.exports = router;
