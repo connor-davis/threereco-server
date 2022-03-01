@@ -29,6 +29,8 @@ router.get('/', async (request, response) => {
           d.connection.userIdNumber === request.user.userIdNumber
       );
 
+      console.log(data);
+
       data.map((d) => {
         delete d['userPassword'];
         return d;
