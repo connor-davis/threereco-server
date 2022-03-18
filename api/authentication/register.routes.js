@@ -38,7 +38,7 @@ router.post('/', async (request, response) => {
         if (user) {
           response
             .status(200)
-            .json({ message: 'User already exists.', error: 'auth-error' });
+            .json({ message: 'Username already taken.', error: 'auth-error' });
         } else {
           // Create the new user.
 
