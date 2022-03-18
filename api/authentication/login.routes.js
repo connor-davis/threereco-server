@@ -8,13 +8,13 @@ let jwt = require('jsonwebtoken');
 router.post('/', async (request, response) => {
   let { body } = request;
 
-  let devmode = process.env.DEV_MODE === "true";
+  let devmode = process.env.DEV_MODE === 'true';
   let connection = await r.connect({
-      host: devmode ? 'localhost' : process.env.RETHINK,
-      port: 28015,
-      user: "admin",
-      password: process.env.ROOT_PASSWORD
-    });
+    host: devmode ? 'localhost' : process.env.RETHINK,
+    port: 28015,
+    user: 'admin',
+    password: process.env.ROOT_PASSWORD,
+  });
 
   let privateKey = fs.readFileSync('certs/privateKey.pem', {
     encoding: 'utf-8',
@@ -26,7 +26,7 @@ router.post('/', async (request, response) => {
     .run(connection, async (error, result) => {
       if (error) {
         response
-          .status(500)
+          .status(200)
           .json({ message: 'Error while searching for user.', error });
         return logger.error(error);
       } else {
@@ -38,7 +38,7 @@ router.post('/', async (request, response) => {
             let token = jwt.sign(
               {
                 sub: user.id,
-                username: body.username
+                username: body.username,
               },
               privateKey,
               { expiresIn: '1d', algorithm: 'RS256' }
@@ -53,10 +53,17 @@ router.post('/', async (request, response) => {
               },
             });
           } else {
-            response.status(401).json({ message: 'Password does not match.' });
+            response
+              .status(200)
+              .json({
+                message: 'Password does not match.',
+                error: 'auth-error',
+              });
           }
         } else {
-          response.status(404).json({ message: 'User does not exist.' });
+          response
+            .status(200)
+            .json({ message: 'User does not exist.', error: 'auth-error' });
         }
       }
     });

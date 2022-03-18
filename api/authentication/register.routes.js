@@ -28,7 +28,7 @@ router.post('/', async (request, response) => {
     .run(connection, async (error, result) => {
       if (error) {
         response
-          .status(500)
+          .status(200)
           .json({ message: 'Error while searching for user.', error });
         return logger.error(error);
       } else {
@@ -36,7 +36,9 @@ router.post('/', async (request, response) => {
         let user = data[0];
 
         if (user) {
-          response.status(500).json({ message: 'User already exists.' });
+          response
+            .status(200)
+            .json({ message: 'User already exists.', error: 'auth-error' });
         } else {
           // Create the new user.
 
@@ -61,7 +63,7 @@ router.post('/', async (request, response) => {
             .run(connection, async (error, result) => {
               if (error) {
                 response
-                  .status(500)
+                  .status(200)
                   .json({ message: 'Error while creating new user.', error });
 
                 return logger.error(error);
@@ -79,8 +81,11 @@ router.post('/', async (request, response) => {
                   return logger.success('Created a new user.');
                 } else {
                   response
-                    .status(500)
-                    .json({ message: 'Error while creating new user.' });
+                    .status(200)
+                    .json({
+                      message: 'Error while creating new user.',
+                      error: 'auth-error',
+                    });
 
                   return logger.error('Could not create new user.');
                 }
