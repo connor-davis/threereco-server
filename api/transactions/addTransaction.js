@@ -21,7 +21,7 @@ router.post('/', async (request, response) => {
   });
 
   r.db('threereco')
-    .table('materials')
+    .table('userMaterials')
     .get({
       user: request.user.id,
     })
@@ -45,7 +45,7 @@ router.post('/', async (request, response) => {
         );
       } else {
         r.db('threereco')
-          .table('materials')
+          .table('userMaterials')
           .get({
             user: body.type === 'purchase' ? body.seller.id : body.purchaser.id,
           })
