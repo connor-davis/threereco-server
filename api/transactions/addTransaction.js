@@ -23,15 +23,13 @@ router.post('/', async (request, response) => {
   r.db('threereco')
     .table('userMaterials')
     .filter(function (material) {
-      return material('materialName')
-        .contains(body.material.materialName)
-        .and(material('user').eq(request.user.id));
+      return material('materialName').contains(body.material.materialName);
     })
     .update({
       stock:
         body.type === 'purchase'
-          ? r.row('stock').add(body.weight)
-          : r.row('stock').sub(body.weight),
+          ? r.row('stock').coerceTo('number').add(body.weight)
+          : r.row('stock').coerceTo('number').sub(body.weight),
     })
     .run(connection, (error, result) => {
       if (error) {
@@ -49,19 +47,15 @@ router.post('/', async (request, response) => {
         r.db('threereco')
           .table('userMaterials')
           .filter(function (material) {
-            return material('materialName')
-              .contains(body.material.materialName)
-              .and(
-                material('user').eq(
-                  body.type === 'purchase' ? body.seller.id : body.purchaser.id
-                )
-              );
+            return material('materialName').contains(
+              body.material.materialName
+            );
           })
           .update({
             stock:
               body.type === 'purchase'
-                ? r.row('stock').add(body.weight)
-                : r.row('stock').sub(body.weight),
+                ? r.row('stock').coerceTo('number').add(body.weight)
+                : r.row('stock').coerceTo('number').sub(body.weight),
           })
           .run(connection, (error, result) => {
             if (error) {
