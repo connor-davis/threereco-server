@@ -23,7 +23,10 @@ router.post('/', async (request, response) => {
   r.db('threereco')
     .table('userMaterials')
     .filter(function (material) {
-      return material('materialName').contains(body.material.materialName);
+      return material('materialName')
+        .toString()
+        .toLowerCase()
+        .includes(body.material.materialName.toLowerCase());
     })
     .update({
       stock:
@@ -47,9 +50,10 @@ router.post('/', async (request, response) => {
         r.db('threereco')
           .table('userMaterials')
           .filter(function (material) {
-            return material('materialName').contains(
-              body.material.materialName
-            );
+            return material('materialName')
+              .toString()
+              .toLowerCase()
+              .includes(body.material.materialName.toLowerCase());
           })
           .update({
             stock:
