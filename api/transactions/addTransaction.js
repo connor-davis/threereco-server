@@ -28,8 +28,8 @@ router.post('/', async (request, response) => {
     .update({
       stock:
         body.type === 'purchase'
-          ? r.row('stock').coerceTo('number').add(body.weight)
-          : r.row('stock').coerceTo('number').sub(body.weight),
+          ? r.row('stock').add(parseFloat(body.weight))
+          : r.row('stock').sub(parseFloat(body.weight)),
     })
     .run(connection, (error, result) => {
       if (error) {
@@ -54,8 +54,8 @@ router.post('/', async (request, response) => {
           .update({
             stock:
               body.type === 'purchase'
-                ? r.row('stock').coerceTo('number').add(body.weight)
-                : r.row('stock').coerceTo('number').sub(body.weight),
+                ? r.row('stock').add(parseFloat(body.weight))
+                : r.row('stock').sub(parseFloat(body.weight)),
           })
           .run(connection, (error, result) => {
             if (error) {
