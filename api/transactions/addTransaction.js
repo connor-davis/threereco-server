@@ -22,7 +22,7 @@ router.post('/', async (request, response) => {
 
   r.db('threereco')
     .table('userMaterials')
-    .get({
+    .filter({
       user: request.user.id,
     })
     .update({
@@ -46,7 +46,7 @@ router.post('/', async (request, response) => {
       } else {
         r.db('threereco')
           .table('userMaterials')
-          .get({
+          .filter({
             user: body.type === 'purchase' ? body.seller.id : body.purchaser.id,
           })
           .update({
