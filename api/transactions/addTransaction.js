@@ -23,15 +23,9 @@ router.post('/', async (request, response) => {
   r.db('threereco')
     .table('userMaterials')
     .filter(function (material) {
-      let aEquals = material('materialName')
-        .toString()
-        .toLowerCase()
-        .includes(body.material.materialName.toLowerCase());
-      let bEquals = material('user').eq(request.user.id);
-
-      console.log(aEquals, bEquals);
-
-      return aEquals && bEquals;
+      return material('materialName')
+        .eq(body.material.materialName)
+        .and(material('user').eq(request.user.id));
     })
     .update({
       stock:
@@ -55,17 +49,13 @@ router.post('/', async (request, response) => {
         r.db('threereco')
           .table('userMaterials')
           .filter(function (material) {
-            let aEquals = material('materialName')
-              .toString()
-              .toLowerCase()
-              .includes(body.material.materialName.toLowerCase());
-            let bEquals = material('user').eq(
-              body.type === 'purchase' ? body.seller.id : body.purchaser.id
-            );
-
-            console.log(aEquals, bEquals);
-
-            return aEquals && bEquals;
+            return material('materialName')
+              .eq(body.material.materialName)
+              .and(
+                material('user').eq(
+                  body.type === 'purchase' ? body.seller.id : body.purchaser.id
+                )
+              );
           })
           .update({
             stock:
