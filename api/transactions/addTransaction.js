@@ -26,10 +26,9 @@ router.post('/', async (request, response) => {
       user: request.user.id,
     })
     .update({
-      stock:
-        body.type === 'purchase'
-          ? r.row('stock').add(body.weight)
-          : r.row('stock').sub(body.weight),
+      stock: 0, //body.type === 'purchase'
+      //? r.row('stock').add(body.weight)
+      //: r.row('stock').sub(body.weight)
     })
     .run(connection, (error, result) => {
       if (error) {
@@ -50,10 +49,9 @@ router.post('/', async (request, response) => {
             user: body.type === 'purchase' ? body.seller.id : body.purchaser.id,
           })
           .update({
-            stock:
-              body.type === 'purchase'
-                ? r.row('stock').add(body.weight)
-                : r.row('stock').sub(body.weight),
+            stock: 0, //body.type === 'purchase'
+            //? r.row('stock').add(body.weight)
+            //: r.row('stock').sub(body.weight),
           })
           .run(connection, (error, result) => {
             if (error) {
