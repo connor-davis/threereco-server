@@ -27,9 +27,7 @@ router.post('/', async (request, response) => {
         .toString()
         .toLowerCase()
         .includes(body.material.materialName.toLowerCase());
-      let bEquals = material('user').eq(
-        body.type === 'purchase' ? body.purchaser.id : body.seller.id
-      );
+      let bEquals = material('user').eq(request.user.id);
 
       console.log(aEquals, bEquals);
 
